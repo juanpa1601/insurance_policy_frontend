@@ -1,34 +1,16 @@
 import { useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { createPolicy } from '../api/policies.api';
 import { getAllCustomers } from '../api/customers.api';
 import type { Policy } from '../types';
-
-const schema = z
-  .object({
-    customerId: z.string().min(1, 'Seleccione un cliente'),
-    branch: z.enum(['AUTO', 'LIFE', 'HOME', 'HEALTH', 'TRAVEL']),
-    ratingStrategy: z.enum(['STANDARD', 'RISK_BASED', 'LOYALTY']),
-    riskScore: z.coerce.number().min(0).max(100).optional(),
-    customerSince: z.coerce.number().min(1900).max(new Date().getFullYear()).optional(),
-  })
-  .refine(
-    (data) => data.ratingStrategy !== 'RISK_BASED' || data.riskScore !== undefined,
-    { message: 'Risk Score es requerido para la estrategia RISK_BASED', path: ['riskScore'] },
-  )
-  .refine(
-    (data) => data.ratingStrategy !== 'LOYALTY' || data.customerSince !== undefined,
-    { message: 'Año de ingreso es requerido para la estrategia LOYALTY', path: ['customerSince'] },
-  );
-
-// z.coerce acepta cualquier entrada (el valor crudo del <input>) y produce un
-// número: el formulario trabaja con el tipo de entrada y el submit con el de salida.
-type FormInput = z.input<typeof schema>;
-type FormData = z.output<typeof schema>;
+import {
+  createPolicySchema,
+  type CreatePolicyFormData as FormData,
+  type CreatePolicyFormInput as FormInput,
+} from './createPolicy.schema';
 
 export function CreatePolicyPage() {
   const navigate = useNavigate();
@@ -47,7 +29,7 @@ export function CreatePolicyPage() {
     reset,
     formState: { errors },
   } = useForm<FormInput, unknown, FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(createPolicySchema),
     defaultValues: { branch: 'AUTO', ratingStrategy: 'STANDARD' },
   });
 
