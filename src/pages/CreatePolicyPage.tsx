@@ -1,5 +1,5 @@
-﻿import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -25,7 +25,10 @@ const schema = z
     { message: 'Año de ingreso es requerido para la estrategia LOYALTY', path: ['customerSince'] },
   );
 
-type FormData = z.infer<typeof schema>;
+// z.coerce acepta cualquier entrada (el valor crudo del <input>) y produce un
+// número: el formulario trabaja con el tipo de entrada y el submit con el de salida.
+type FormInput = z.input<typeof schema>;
+type FormData = z.output<typeof schema>;
 
 export function CreatePolicyPage() {
   const navigate = useNavigate();
@@ -40,15 +43,15 @@ export function CreatePolicyPage() {
   const {
     register,
     handleSubmit,
-    watch,
+    control,
     reset,
     formState: { errors },
-  } = useForm<FormData>({
+  } = useForm<FormInput, unknown, FormData>({
     resolver: zodResolver(schema),
     defaultValues: { branch: 'AUTO', ratingStrategy: 'STANDARD' },
   });
 
-  const watchedStrategy = watch('ratingStrategy');
+  const watchedStrategy = useWatch({ control, name: 'ratingStrategy' });
 
   const mutation = useMutation({
     mutationFn: (data: FormData) =>
