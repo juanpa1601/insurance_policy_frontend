@@ -1,73 +1,41 @@
-# React + TypeScript + Vite
+# Insurance Policy Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SPA para administrar clientes y pólizas de seguros. Consume la API REST de [insurance_policy_api](https://github.com/juanpa1601/insurance_policy_api).
 
-Currently, two official plugins are available:
+## Tecnologías
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19 y TypeScript
+- Vite
+- Tailwind CSS v4
+- TanStack Query (React Query) y Axios
+- React Hook Form y Zod
+- React Router 7
 
-## React Compiler
+## Qué hace
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Clientes:** listado, detalle con sus pólizas y formulario de creación validado con Zod.
+- **Pólizas:** listado y formulario de emisión con ramo (`AUTO`, `LIFE`, `HOME`, `HEALTH`, `TRAVEL`), estrategia de tarificación (`STANDARD`, `RISK_BASED`, `LOYALTY`) y perfil de riesgo.
+- **Cambio de estado:** un modal que solo ofrece las transiciones permitidas por la máquina de estados del backend (`QUOTED → ISSUED → ACTIVE ⇄ SUSPENDED`, y `CANCELLED` desde cualquier estado no final).
+- Tras crear o modificar datos, invalida la caché de TanStack Query para refrescar los listados.
 
-## Expanding the ESLint configuration
+Rutas: `/customers`, `/customers/new`, `/customers/:id`, `/policies`, `/policies/new`.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Cómo ejecutarlo
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Requisitos: Node.js 20 o superior y la API corriendo en `http://localhost:3000` (ver su README).
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev     # http://localhost:5173
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Vite redirige `/api` a `http://localhost:3000`, así que no hace falta configurar CORS en desarrollo.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Estado actual
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- Probado localmente con `npm run dev`: la app carga y obtiene datos de la API a través del proxy.
+- `npm run build` falla con 2 errores de tipos en `src/pages/CreatePolicyPage.tsx`, por la combinación de `z.coerce.number()` con el resolver de React Hook Form. Queda pendiente corregirlos.
+
+## Contexto
+
+Frontend del reto integrador de pólizas de seguros, desarrollado junto con [insurance_policy_api](https://github.com/juanpa1601/insurance_policy_api).
