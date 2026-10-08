@@ -4,8 +4,10 @@ import type { Policy, PolicyStatus } from '../types';
 import { changePolicyStatus } from '../api/policies.api';
 import { StatusBadge } from './StatusBadge';
 
+// Debe reflejar la máquina de estados del backend (insurance_policy_api),
+// que es quien valida: QUOTED también puede cancelarse directamente.
 const VALID_TRANSITIONS: Record<PolicyStatus, PolicyStatus[]> = {
-  QUOTED:    ['ISSUED'],
+  QUOTED:    ['ISSUED', 'CANCELLED'],
   ISSUED:    ['ACTIVE', 'CANCELLED'],
   ACTIVE:    ['SUSPENDED', 'CANCELLED'],
   SUSPENDED: ['ACTIVE', 'CANCELLED'],
